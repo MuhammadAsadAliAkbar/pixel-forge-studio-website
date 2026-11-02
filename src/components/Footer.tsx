@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BackToTop from "./BackToTop"; // NEW: BackToTop.tsx ko isi folder me rakhein
 
 async function getCurrentYear() {
   "use cache";
@@ -183,6 +184,8 @@ export default async function Footer() {
               Cookies
             </Link>
             <span>© {year} Pixel Forge Studio. All rights reserved.</span>
+            {/* NEW: Back to top arrow */}
+            <BackToTop />
           </div>
         </div>
       </div>

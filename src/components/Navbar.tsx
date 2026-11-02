@@ -1,9 +1,8 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 
@@ -16,9 +15,23 @@ const navLinks = [
   { href: "/support", label: "Support" },
 ];
 
+/* Scroll kitne pixel ke baad navbar white ho */
+const SCROLL_THRESHOLD = 20;
+
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  /* Scroll detect karo (page refresh par bhi sahi state set hoti hai) */
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -27,10 +40,31 @@ export default function Navbar() {
 
   return (
     <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: "easeOut" }}
-      className="absolute left-0 top-0 z-50 w-full"
+      initial={{
+        opacity: 0,
+        y: -20,
+        backgroundColor: "rgba(255,255,255,0)",
+        boxShadow: "0 0 0 rgba(23,75,58,0)",
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        backgroundColor: scrolled
+          ? "rgba(255,255,255,0.96)"
+          : "rgba(255,255,255,0)",
+        boxShadow: scrolled
+          ? "0 6px 28px rgba(23,75,58,0.12)"
+          : "0 0 0 rgba(23,75,58,0)",
+      }}
+      transition={{
+        duration: 0.7,
+        ease: "easeOut",
+        backgroundColor: { duration: 0.35, ease: "easeInOut" },
+        boxShadow: { duration: 0.35, ease: "easeInOut" },
+      }}
+      className={`fixed left-0 top-0 z-50 w-full ${
+        scrolled ? "backdrop-blur-md" : ""
+      }`}
     >
       <div className="mx-auto flex h-[68px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
 
@@ -42,10 +76,18 @@ export default function Navbar() {
         >
           <motion.span
             whileHover={{ scale: 1.05 }}
-            className="font-serif text-[23px] font-bold italic tracking-[-1.5px] text-white"
+            className={`font-serif text-[23px] font-bold italic tracking-[-1.5px] transition-colors duration-300 ${
+              scrolled ? "text-[#174B3A]" : "text-white"
+            }`}
           >
             PixelForge
-            <span className="text-white/70">.</span>
+            <span
+              className={`transition-colors duration-300 ${
+                scrolled ? "text-[#438B79]" : "text-white/70"
+              }`}
+            >
+              .
+            </span>
           </motion.span>
         </Link>
 
@@ -58,20 +100,32 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="group relative py-2 text-[11px] font-medium tracking-wide text-white/85 transition-colors duration-300 hover:text-white"
+                className={`group relative py-2 text-[11px] font-medium tracking-wide transition-colors duration-300 ${
+                  scrolled
+                    ? "text-[#26332E]/80 hover:text-[#174B3A]"
+                    : "text-white/85 hover:text-white"
+                }`}
               >
                 {link.label}
 
+                {/* Active underline */}
                 <motion.span
                   initial={false}
                   animate={{
                     scaleX: active ? 1 : 0,
                     opacity: active ? 1 : 0,
                   }}
-                  className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-white"
+                  className={`absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full transition-colors duration-300 ${
+                    scrolled ? "bg-[#174B3A]" : "bg-white"
+                  }`}
                 />
 
-                <span className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-white/70 transition-transform duration-300 group-hover:scale-x-100" />
+                {/* Hover underline */}
+                <span
+                  className={`absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full transition-all duration-300 group-hover:scale-x-100 ${
+                    scrolled ? "bg-[#438B79]" : "bg-white/70"
+                  }`}
+                />
               </Link>
             );
           })}
@@ -81,7 +135,11 @@ export default function Navbar() {
         <div className="hidden items-center gap-2 lg:flex">
           <Link
             href="/download"
-            className="group inline-flex items-center gap-1 rounded-full border border-white/30 px-4 py-2 text-[11px] font-semibold text-white transition-all duration-300 hover:border-white hover:bg-white/15"
+            className={`group inline-flex items-center gap-1 rounded-full border px-4 py-2 text-[11px] font-semibold transition-all duration-300 ${
+              scrolled
+                ? "border-[#174B3A]/30 text-[#174B3A] hover:border-[#174B3A] hover:bg-[#174B3A]/10"
+                : "border-white/30 text-white hover:border-white hover:bg-white/15"
+            }`}
           >
             Sign up
             <ArrowUpRight
@@ -92,7 +150,11 @@ export default function Navbar() {
 
           <Link
             href="/download"
-            className="rounded-full bg-white px-4 py-2 text-[11px] font-semibold text-violet-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-violet-50 hover:shadow-lg"
+            className={`rounded-full px-4 py-2 text-[11px] font-semibold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${
+              scrolled
+                ? "bg-[#174B3A] text-white hover:bg-[#123D2F]"
+                : "bg-white text-violet-700 hover:bg-violet-50"
+            }`}
           >
             Log in
           </Link>
@@ -104,7 +166,11 @@ export default function Navbar() {
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
-          className="relative z-50 flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white/15 lg:hidden"
+          className={`relative z-50 flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 lg:hidden ${
+            scrolled
+              ? "border-[#174B3A]/30 text-[#174B3A] hover:bg-[#174B3A]/10"
+              : "border-white/30 text-white hover:bg-white/15"
+          }`}
         >
           <AnimatePresence mode="wait" initial={false}>
             {mobileOpen ? (

@@ -1293,12 +1293,13 @@ export default function HomePage() {
           </Reveal>
         </div>
 
+        {/* CENTERED: mx-auto + w-fit + max-w-full (mobile par scroll same rehta hai) */}
         <motion.div
           initial={{ opacity: 0, y: 35 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="scrollbar-hide flex gap-4 overflow-x-auto px-5 pb-5 sm:px-8"
+          className="scrollbar-hide mx-auto flex w-fit max-w-full gap-4 overflow-x-auto px-5 pb-5 sm:px-8"
         >
           {templates.map((item, index) => (
             <TemplateCard
